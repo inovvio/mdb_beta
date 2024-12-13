@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Framework {
+  id                      String    @id @default(uuid())
+  name                    String
+  type                    String
+  shortDescription        String
+  longDescription        String?
+  frameworkLimit         Float?
+  currency               String    @default("USD")
+  status                 String    @default("DRAFT")
+  fundingType            String?
+  maxAmount              Float?
+  fundId                 String?
+  parentFrameworkId      String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  eligibilityCriteria    EligibilityCriteria?
+  attributes             FrameworkAttribute[]
+  documents              FrameworkDocument[]
+}
+
+model FrameworkDocument {
+  id          String    @id @default(uuid())
+  name        String
+  type        String
+  url         String
+  comments    String?
+  framework   Framework @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  frameworkId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model EligibilityCriteria {
+  id                           String    @id @default(uuid())
+  framework                    Framework @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  frameworkId                  String    @unique
+  permittedSICs               String?
+  environmentCategory         String?
+  countriesOfOperation        String?
+  transitionImpactPrimaryQuality String?
+  clientTypes                 String?
+  productTypes                String?
+  attributes                  EligibilityCriteriaAttribute[]
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+}
+
+model EligibilityCriteriaAttribute {
+  id                     String              @id @default(uuid())
+  key                    String
+  value                  String
+  eligibilityCriteria   EligibilityCriteria @relation(fields: [eligibilityCriteriaId], references: [id], onDelete: Cascade)
+  eligibilityCriteriaId String
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+}
+
+model FrameworkAttribute {
+  id          String    @id @default(uuid())
+  name        String
+  type        String
+  value       String
+  framework   Framework @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  frameworkId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
